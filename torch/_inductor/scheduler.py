@@ -409,10 +409,11 @@ class BaseSchedulerNode:
 
         ordered_reads = sorted(self.read_writes.reads, key=lambda x: x.name)
         # NOTE remove V.graph.removed_operations once deps issue is fixed
-        inconsequential_nodes = (self.ancestors - {self.get_name()}) \
-            | (fused_nodes - {self.get_name()}) \
-            | V.graph.removed_operations \
+        inconsequential_nodes = (
+            (self.ancestors - {self.get_name()})
+            | V.graph.removed_operations
             | self.scheduler.completed_operations
+        )
 
         for buf in self.get_outputs():
             buf_node = buf.node

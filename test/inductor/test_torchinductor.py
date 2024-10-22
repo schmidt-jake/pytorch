@@ -12557,7 +12557,11 @@ if HAS_GPU and not TEST_WITH_ASAN:
                 matmul_output = inp @ weight
                 final_output = layer_norm(matmul_output)
                 return final_output
-            inps = [torch.randn(batch_size, seq_length, hidden_size), torch.randn(hidden_size, hidden_size)]
+
+            inps = [
+                torch.randn(batch_size, seq_length, hidden_size),
+                torch.randn(hidden_size, hidden_size),
+            ]
             fn_opt = torch.compile(fn)
             code = run_and_get_triton_code(fn_opt, *inps)
             self.assertTrue("in_out_ptr" in code)
