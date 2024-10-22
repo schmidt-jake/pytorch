@@ -1073,11 +1073,15 @@ class AssociativeScanHigherOrderVariable(TorchHigherOrderOperatorVariable):
                 args=(
                     VariableTracker.build(
                         tx,
-                        leaf.size
-                        if leaf.size is not None
-                        else BuiltinVariable(getattr)
-                        .call_function(tx, [leaf, ConstantVariable.create("shape")], {})
-                        .items,
+                        (
+                            leaf.size
+                            if leaf.size is not None
+                            else BuiltinVariable(getattr)
+                            .call_function(
+                                tx, [leaf, ConstantVariable.create("shape")], {}
+                            )
+                            .items
+                        ),
                     ),
                 ),
                 kwargs={
