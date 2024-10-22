@@ -1474,8 +1474,18 @@ def elementwise_dtypes(
     # See https://dev-discuss.pytorch.org/t/delving-into-what-happens-when-you-import-torch/1589
     import sympy
 
+    from torch._inductor.codegen.common import CSEVariable
+
     for x in args:
-        if not isinstance(x, (Number, TensorLike, sympy.Basic)):
+        if not isinstance(
+            x,
+            (
+                Number,
+                TensorLike,
+                sympy.Basic,
+                CSEVariable,
+            ),
+        ):
             msg = f"Unexpected type {str(type(x))} when computing elementwise type promotion!"
             raise ValueError(msg)
 
@@ -1495,11 +1505,15 @@ def elementwise_dtypes(
         zero_dim_tensor_dtype = None
         one_plus_dim_tensor_dtype = None
         for x in args:
-            if isinstance(x, TensorLike) and filter(x.dtype):
+            if (
+                isinstance(x, (TensorLike, CSEVariable))
+                and x.dtype is not None
+                and filter(x.dtype)
+            ):
                 _dtype = x.dtype
                 if float_as_complex and is_float_dtype(_dtype):
                     _dtype = corresponding_complex_dtype(_dtype)
-                if x.ndim == 0:
+                if hasattr(x, "ndim") and x.ndim == 0:
                     zero_dim_tensor_dtype = get_higher_dtype(
                         zero_dim_tensor_dtype, _dtype
                     )
